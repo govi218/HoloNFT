@@ -1,0 +1,25 @@
+{
+  "name": "neuro-nft",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/govi218/NeuroNFT.git"
+  },
+  "author": "Govind Mohan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/govi218/NeuroNFT/issues"
+  },
+  "homepage": "https://github.com/govi218/NeuroNFT#readme",
+  "devDependencies": {
+    "hardhat": "^0.0.7"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.4.1"
+  }
+}
