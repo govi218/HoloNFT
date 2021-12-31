@@ -1,0 +1,37 @@
+{{! <p>Welcome to {{title}\}</p> }}
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Web Crypto API example</title>
+  </head>
+
+  <body>
+    <main>
+      <h1>NFT Holograms</h1>
+      <section class="description">
+        3D NFTs!
+      </section>
+      <br>
+      <br>
+      <br>
+      <section class="examples">
+        <section class="encrypt-decrypt aes-cbc">
+          <section class="encrypt-decrypt-controls">
+            <div class="message-control">
+              <label for="aes-cbc-message">Upload a file to pack</label>
+              <br>
+              <br>
+              <input type="file" id="aes-cbc-message" name="message" size="25">
+              {{! <textarea cols="80" rows="10"></textarea> }}
+            </div>
+            <br>
+            <br>
+            <input class="encrypt-button" type="button" value="Encrypt">
+            <input class="decrypt-button" type="button" value="Decrypt">
+          </section>
+        </section>
+      </section>
+    </main>
+  </body>
+  <script src="javascripts/crypt.js"></script>
+</html>
