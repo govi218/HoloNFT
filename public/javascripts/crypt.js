@@ -46,26 +46,25 @@
             let buffer_blob = new Blob([buffer]);
             let fileName = "encrypted_msg.dat";
 
-            // "get_last_upload"?
-            // var link = document.createElement('a');
-            // link.href = window.URL.createObjectURL(new Blob([buffer]));
-            // link.download = fileName;
-            // link.click();
-
             let oReq = new XMLHttpRequest();
             oReq.open("POST", upload_url, true);
             oReq.setRequestHeader('Content-Type', 'application/octet-stream');
-            oReq.onload = function (oEvent) {
-                // Uploaded.
-            };
-
+            oReq.onreadystatechange = function() {
+                if (oReq.readyState == XMLHttpRequest.DONE) {
+                    console.log(oReq);
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(new Blob([oReq.response]));
+                    link.download = fileName;
+                    link.click();
+                }
+            }
+            oReq.responseType = "arraybuffer";
             oReq.send(buffer_blob);
         } else {
             console.log(iv)
             console.log(key)
             console.log(data_bs === ciph_buffer)
 
-            // try {
             let decrypted = window.crypto.subtle.decrypt(
                 {
                     name: "AES-CBC",
@@ -76,24 +75,12 @@
             );
 
             decrypted.then((data) => {
-                console.log(data);
-
-                // const decryptedValue = document.querySelector(".aes-cbc .decrypted-value");
-                // decryptedValue.classList.add('fade-in');
-                // decryptedValue.addEventListener('animationend', () => {
-                // decryptedValue.classList.remove('fade-in');
-                // });
-                // decryptedValue.textContent = dec.decode(decrypted);
-
                 var link = document.createElement('a');
                 link.href = window.URL.createObjectURL(new Blob([new Uint8Array(data)]));
                 var fileName = "decrypted.dat";
                 link.download = fileName;
                 link.click();
             }).catch((err) => console.log(err));
-            // } catch (err) {
-                // console.log(err);
-            // }
         }
     }
 

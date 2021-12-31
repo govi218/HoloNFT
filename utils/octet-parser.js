@@ -7,7 +7,7 @@ function octet_parser(req, res, next) {
 
     req.once('end', function() {
       var concated = Buffer.concat(buffer);
-      req.body = concated.toString('utf8'); // change it to meet your needs (gzip, json, etc)
+      req.body = concated; // change it to meet your needs (gzip, json, etc)
       next()
     });
   } else {

@@ -1,29 +1,17 @@
 {
-  "name": "neuro-nft",
-  "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
+  "name": "neuronftapp",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/govi218/NeuroNFT.git"
-  },
-  "author": "Govind Mohan",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/govi218/NeuroNFT/issues"
-  },
-  "homepage": "https://github.com/govi218/NeuroNFT#readme",
-  "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.0.3",
-    "ethers": "^5.5.2",
-    "hardhat": "^2.0.0"
+    "start": "node ./bin/www"
   },
   "dependencies": {
-    "@alch/alchemy-web3": "^1.1.9",
-    "@openzeppelin/contracts": "^4.4.1",
-    "dotenv": "^10.0.0"
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "hbs": "^4.2.0",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1",
+    "fs": "^0.0.1-security"
   }
 }
