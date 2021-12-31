@@ -5,6 +5,8 @@ const express = require('express');
 
 const router = express.Router();
 
+var consts = require('../utils/const')
+
 /* POST file upload. */
 router.post('/', function(req, res, next) {
     // get image from req
@@ -22,7 +24,7 @@ router.post('/', function(req, res, next) {
 
     // make subprocess to pack encrypted blob
     exec("python pack.py " + container_file_path + " "
-         + enc_file_path + " " + pack_file_path,
+         + enc_file_path + " " + pack_file_path + " " + consts.PACK_SEPARATOR,
     (error, stdout, stderr) => {
         if (error) {
             console.error(`error: ${error.message}`);
@@ -38,6 +40,22 @@ router.post('/', function(req, res, next) {
 
         // send it back as a download in res
         res.sendFile(data_dir + packed_file, packed_file);
+
+        // clean up
+        exec("rm " + enc_file_path + " " + pack_file_path,
+             (error, stdout, stderr) => {
+                 if (error) {
+                     console.error(`error: ${error.message}`);
+                     return;
+                 }
+
+                 if (stderr) {
+                     console.error(`stderr: ${stderr}`);
+                     return;
+                 }
+
+                 console.log("Cleanup successful");
+        });
     });
 });
 

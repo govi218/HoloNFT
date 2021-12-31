@@ -61,9 +61,23 @@
             oReq.responseType = "arraybuffer";
             oReq.send(buffer_blob);
         } else {
+            // unpack encrypted data from PNG
+            const PACK_SEPARATOR = "ENCRYPTED_PAYLOAD"; // FIXME: Access consts?
+            var t_dec = new TextDecoder("ascii");
+            let data_cs = t_dec.decode(data_bs);
+            let offset = data_cs.indexOf(PACK_SEPARATOR);
+            if (offset < 0){
+                alert("Uploaded data is not a HoloNFT!");
+                return;
+            }
+
+            console.log(data_cs.substring(offset, offset + PACK_SEPARATOR.length));
+            let encoded_data = data_bs.slice(offset + PACK_SEPARATOR.length, data_bs.length - 16);
+
+            // then decrypt data
             console.log(iv)
             console.log(key)
-            console.log(data_bs === ciph_buffer)
+            console.log(encoded_data)
 
             let decrypted = window.crypto.subtle.decrypt(
                 {
@@ -71,7 +85,7 @@
                     iv
                 },
                 key,
-                data_bs
+                encoded_data
             );
 
             decrypted.then((data) => {
