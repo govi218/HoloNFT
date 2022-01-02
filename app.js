@@ -15,7 +15,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
-// n.b. order matters here
+// n.b. order matters here (prob just octet)
 app.use(octet_parser);
 app.use(express.json({limit: '50mb', extended: true}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));

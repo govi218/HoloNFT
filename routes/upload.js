@@ -14,7 +14,7 @@ router.post('/', function(req, res, next) {
     const data_dir = path.dirname(__dirname) + "/data/";
     const enc_file = "encrypted.dat";
     const packed_file = "packed.png";
-    const container_file = "3mb.png";
+    const container_file = "brain.png";
 
     const container_file_path = data_dir + container_file;
     const pack_file_path = data_dir + packed_file;
