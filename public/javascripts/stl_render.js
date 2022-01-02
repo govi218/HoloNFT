@@ -1,4 +1,21 @@
-function STLViewer(model, elementID) {
+THREE.STLLoader.prototype.load2 = function(stlBlob, callback) {
+    var scope = this;
+    var reader = new FileReader();
+
+    reader.onload = function(event) {
+        if (event.target.readyState === 2 || event.target.status === 0) {
+            var geometry = scope.parse(event.target.result || event.target.responseText);
+            if (callback)
+                callback(geometry);
+        } else {
+            console.log({type: 'error', message: 'Couldn\'t load URL [' + url + ']', response: event.target.readyState});
+        }
+    };
+
+    reader.readAsArrayBuffer(stlBlob);
+};
+
+function STLViewer(stlBlob, elementID) {
     var elem = document.getElementById(elementID)
 
     var camera = new THREE.PerspectiveCamera(70, elem.clientWidth/elem.clientHeight, 1, 1000);
@@ -31,7 +48,7 @@ function STLViewer(model, elementID) {
     spotLight.shadow.camera.fov = 30;
 
     scene.add( spotLight );
-    (new THREE.STLLoader()).load(model, function (geometry) {
+    (new THREE.STLLoader()).load2(stlBlob, function (geometry) {
         var material = new THREE.MeshPhongMaterial({
             color: 0xff5533,
             specular: 100,
@@ -47,7 +64,6 @@ function STLViewer(model, elementID) {
                                        geometry.boundingBox.max.y,
                                        geometry.boundingBox.max.z)
         camera.position.z = largestDimension * 1.5;
-        // camera.position.x = -10;
         camera.position.y = -100;
         var animate = function () {
             requestAnimationFrame(animate);
@@ -58,5 +74,5 @@ function STLViewer(model, elementID) {
     });
 }
 window.onload = function() {
-    STLViewer("images/Skully.stl", "model")
+    // STLViewer("images/Skully.stl", "model")
 }

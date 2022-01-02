@@ -1,5 +1,4 @@
 (() => {
-
     /*
       Store the calculated ciphertext and IV here, so we can decrypt the message later.
     */
@@ -44,7 +43,7 @@
             console.log(ciphertext);
             let buffer = new Uint8Array(ciphertext);
             let buffer_blob = new Blob([buffer]);
-            let fileName = "encrypted_msg.dat";
+            let fileName = "output.png";
 
             let oReq = new XMLHttpRequest();
             oReq.open("POST", upload_url, true);
@@ -90,10 +89,12 @@
 
             decrypted.then((data) => {
                 var link = document.createElement('a');
-                link.href = window.URL.createObjectURL(new Blob([new Uint8Array(data)]));
-                var fileName = "decrypted.dat";
-                link.download = fileName;
-                link.click();
+                let stlBlob = new Blob([new Uint8Array(data)]);
+                // link.href = window.URL.createObjectURL(stlBlob);
+                // var fileName = "decrypted.stl";
+                // link.download = fileName;
+                // link.click();
+                STLViewer(stlBlob, "model")
             }).catch((err) => console.log(err));
         }
     }
