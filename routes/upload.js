@@ -24,6 +24,10 @@ const router = express.Router();
 router.post('/', function(req, res, next) {
     // get image from req
     encrypted_buf = req.body;
+    if (encrypted_buf.length > 5000000) {
+        res.status(400).send("Data sent is greater than max size (5MB).");
+        return;
+    }
     const data_dir = path.dirname(__dirname) + "/data/";
     const enc_file = "encrypted.dat";
     const packed_file = "packed.png";
@@ -48,8 +52,6 @@ router.post('/', function(req, res, next) {
                  console.error(`stderr: ${stderr}`);
                  return;
              }
-
-             console.log(`stdout:\n${stdout}`);
 
              // upload to Pinata
              const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
