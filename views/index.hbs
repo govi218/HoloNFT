@@ -10,7 +10,7 @@
 
   <body>
     <main>
-      <h1>NFT Holograms</h1>
+      <h1>HoloNFT</h1>
       <section class="description">
         3D NFTs!
       </section>
@@ -20,24 +20,50 @@
       <section class="examples">
         <section class="encrypt-decrypt aes-cbc">
           <section class="encrypt-decrypt-controls">
-            <div class="message-control">
-              <label for="aes-cbc-message">Upload a file to pack</label>
-              <br>
-              <br>
-              <input type="file" id="aes-cbc-message" name="message" size="25">
-              <input type="file" id="upload_key" name="message" size="25">
-            </div>
+            <section class="encryption">
+              <div class="encryption-uploads">
+                <label for="carrier-upload">Upload a PNG image to pack into</label>
+                <input type="file" id="carrier-upload" name="message" size="25">
+                <br>
+                <br>
+                <label for="STL-upload">Upload a 3D file to pack (STL format)</label>
+                <input type="file" id="STL-upload" name="message" size="25">
+                <br>
+                <br>
+                <a id="nft_download_btn" name="message" size="25">
+                  Download your HoloNFT
+                </button>
+                <br>
+                <br>
+                <a id="key_download_btn" name="message" size="25">
+                  Download your HoloNFT Key
+                </button>
+              </div>
+              <br><br>
+              <input class="encrypt-button" type="button" value="Encrypt">
+            </section>
+            <br><br><br><br>
+            <section class="decryption">
+              <div class="encryption-uploads">
+                <label for="upload-nft">Upload a HoloNFT</label>
+                <input type="file" id="upload-nft" name="message" size="25">
+                <br>
+                <br>
+                <label for="upload-key">Upload secret key for HoloNFT</label>
+                <input type="file" id="upload-key" name="message" size="25">
+              </div>
+              <br><br>
+              <input class="decrypt-button" type="button" value="Decrypt">
+            </section>
             <br>
             <br>
-            <input class="encrypt-button" type="button" value="Encrypt">
-            <input class="decrypt-button" type="button" value="Decrypt">
           </section>
         </section>
         <section id="download">
           <div id="model" style="width: 500px; height: 500px"> </div>
         </section>
         <section>
-            <a id="download_btn">Download your HoloNFT!</a>
+            {{! <a id="download_btn">Download your HoloNFT!</a> }}
         </section>
       </section>
     </main>

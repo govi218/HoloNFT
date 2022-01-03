@@ -31,7 +31,7 @@ router.post('/', function(req, res, next) {
     const data_dir = path.dirname(__dirname) + "/data/";
     const enc_file = "encrypted.dat";
     const packed_file = "packed.png";
-    const container_file = "brain.png";
+    const container_file = "container.png";
 
     const container_file_path = data_dir + container_file;
     const pack_file_path = data_dir + packed_file;
@@ -152,10 +152,11 @@ router.post('/', function(req, res, next) {
                  })
                  .finally(() => {
                      // send it back as a download in res
-                     res.sendFile(data_dir + packed_file, packed_file);
+                     res.sendFile(pack_file_path, packed_file);
 
                      // clean up
-                     exec("rm " + enc_file_path + " " + pack_file_path,
+                     exec("rm " + enc_file_path + " " + pack_file_path + " "
+                          + container_file_path,
                           (error, stdout, stderr) => {
                               if (error) {
                                   console.error(`error: ${error.message}`);

@@ -8,19 +8,24 @@
 
     let domain = window.location.protocol+"//" +window.location.host;
     let upload_url = domain + "/upload"
+    let carrier_upload_url = domain + "/upload_carrier"
 
     async function encrypt(key, data_bs) {
+        var carrier_input = document.getElementById("carrier-upload");
+        if(carrier_input.files.length === 0) {
+            return;
+        }
+        let carrier_buf = await new Response(carrier_input.files[0]).arrayBuffer();
         iv = window.crypto.getRandomValues(new Uint8Array(16));
 
         const result = crypto.subtle.exportKey('raw', key);
         result.then((key_data) => {
-            console.log(key_data)
-            var link = document.createElement('a');
+            var link = document.getElementById('key_download_btn');
             link.href = window.URL.createObjectURL(new Blob([new Uint8Array(key_data)]));
             var fileName = "secret.key";
             link.download = fileName;
-            link.click();
         }).catch((err) => console.log(err));
+
         ciphertext = await window.crypto.subtle.encrypt(
             {
                 name: "AES-CBC",
@@ -30,39 +35,36 @@
             data_bs
         );
 
-        var input = document.getElementsByTagName("input")[0];
-        var output = document.getElementsByTagName("textarea")[0];
-
-        if (input.files.length === 0) {
-            output.value = 'No file selected';
-            window.setTimeout(ReadFile, 1000);
-            return;
-        }
-        console.log(ciphertext);
-        let buffer = new Uint8Array(ciphertext);
-
         // add IV bytes to ciphertext
+        let buffer = new Uint8Array(ciphertext);
         var iv_buf = new Uint8Array(buffer.length + iv.length);
         iv_buf.set(buffer);
         iv_buf.set(iv, buffer.length);
 
         let buffer_blob = new Blob([iv_buf]);
-        let fileName = "output.png";
+        let carrier_buffer_blob = new Blob([carrier_buf]);
+        let fileName = "HoloNFT.png";
 
         let oReq = new XMLHttpRequest();
-        oReq.open("POST", upload_url, true);
+        oReq.open("POST", carrier_upload_url, true);
         oReq.setRequestHeader('Content-Type', 'application/octet-stream');
         oReq.onreadystatechange = function() {
             if (oReq.readyState == XMLHttpRequest.DONE) {
-                console.log(oReq);
-                var link = document.getElementById('download_btn');
-                link.href = window.URL.createObjectURL(new Blob([oReq.response]));
-                link.download = fileName;
-                // link.click();
+                let oReq2 = new XMLHttpRequest();
+                oReq2.open("POST", upload_url, true);
+                oReq2.setRequestHeader('Content-Type', 'application/octet-stream');
+                oReq2.onreadystatechange = function() {
+                    if (oReq2.readyState == XMLHttpRequest.DONE) {
+                        var link = document.getElementById('nft_download_btn');
+                        link.href = window.URL.createObjectURL(new Blob([oReq2.response]));
+                        link.download = fileName;
+                    }
+                }
+                oReq2.responseType = "arraybuffer";
+                oReq2.send(buffer_blob);
             }
         }
-        oReq.responseType = "arraybuffer";
-        oReq.send(buffer_blob);
+        oReq.send(carrier_buffer_blob);
     }
 
     async function decrypt(key, data_bs) {
@@ -106,22 +108,14 @@
     }
 
     async function ReadFile(key, enc) {
-        var input = document.getElementsByTagName("input")[0];
-        var output = document.getElementsByTagName("textarea")[0];
+        var stl_input = document.getElementById("STL-upload");
 
-        if (input.files.length === 0) {
-            output.value = 'No file selected';
-            window.setTimeout(ReadFile, 1000);
-            return;
-        }
-
-        data = await new Response(input.files[0]).arrayBuffer()
+        data = await new Response(stl_input.files[0]).arrayBuffer();
         var data_bs = new Uint8Array(data);
-        // iv = new Uint8Array([36, 232, 184, 38, 248, 44, 176, 39, 18, 13, 179, 175, 234, 40, 240, 78]);
         if (enc == true) {
             encrypt(key, data_bs);
         } else {
-            var key_input = document.getElementsByTagName("input")[1];
+            var key_input = document.getElementById("upload-key");
 
             if (key_input.files.length === 0) {
                 window.setTimeout(ReadFile, 1000);
@@ -152,12 +146,12 @@
         true,
         ["encrypt", "decrypt"]
     ).then((key) => {
-        const encryptButton = document.querySelector(".aes-cbc .encrypt-button");
+        const encryptButton = document.querySelector(".encrypt-button");
         encryptButton.addEventListener("click", () => {
             ReadFile(key, true);
         });
     });
-    const decryptButton = document.querySelector(".aes-cbc .decrypt-button");
+    const decryptButton = document.querySelector(".decrypt-button");
     decryptButton.addEventListener("click", () => {
         ReadFile("", false);
     });
