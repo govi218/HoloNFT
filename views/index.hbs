@@ -2,72 +2,79 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Web Crypto API example</title>
+    <title>HoloNFT</title>
+    {{! <script language="javascript" src="javascripts/particle.min.js"></script> }}
+    <script language="javascript" src="js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="stylesheets/style.css"/>
     <script src="javascripts/three-combined-v1.2.js"></script>
     <script src="javascripts/stl_loader.js"></script>
     <script src="javascripts/orbit-controls.js"></script>
   </head>
 
   <body>
-    <main>
+    <div id="particles-js"></div>
+    {{! <div id="img-container"></div> }}
       <h1>HoloNFT</h1>
-      <section class="description">
+      <div class="description">
         3D NFTs!
-      </section>
+      </div>
       <br>
       <br>
       <br>
-      <section class="examples">
-        <section class="encrypt-decrypt aes-cbc">
-          <section class="encrypt-decrypt-controls">
-            <section class="encryption">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="encryption container-md op p-3 my-3 bg-primary text-white">
               <div class="encryption-uploads">
-                <label for="carrier-upload">Upload a PNG image to pack into</label>
-                <input type="file" id="carrier-upload" name="message" size="25">
+                <label for="carrier-upload">Upload a PNG image to store your hologram</label>
+                <input type="file" class="form-control" id="carrier-upload" name="message" size="25">
                 <br>
                 <br>
                 <label for="STL-upload">Upload a 3D file to pack (STL format)</label>
-                <input type="file" id="STL-upload" name="message" size="25">
+                <input type="file" class="form-control" id="STL-upload" name="message" size="25">
                 <br>
                 <br>
-                <a id="nft_download_btn" name="message" size="25">
-                  Download your HoloNFT
-                </button>
-                <br>
-                <br>
-                <a id="key_download_btn" name="message" size="25">
-                  Download your HoloNFT Key
-                </button>
+                <div id="downloads" style="visibility:hidden;">
+                  <a id="nft_download_btn" name="message" size="25">
+                    Download your HoloNFT
+                  </a>
+                  <br>
+                  <br>
+                  <a id="key_download_btn" name="message" size="25">
+                    Download your HoloNFT Key
+                  </a>
+                </div>
               </div>
               <br><br>
-              <input class="encrypt-button" type="button" value="Encrypt">
-            </section>
+              <input class="encrypt-button btn-primary" type="button" value="Encrypt">
+            </div>
             <br><br><br><br>
-            <section class="decryption">
-              <div class="encryption-uploads">
+            <div class="decryption container-md op p-3 my-3 bg-primary text-white">
+              <div class="decryption-uploads">
                 <label for="upload-nft">Upload a HoloNFT</label>
-                <input type="file" id="upload-nft" name="message" size="25">
+                <input type="file" class="form-control" id="upload-nft" name="message" size="25">
                 <br>
                 <br>
                 <label for="upload-key">Upload secret key for HoloNFT</label>
-                <input type="file" id="upload-key" name="message" size="25">
+                <input type="file" class="form-control" id="upload-key" name="message" size="25">
               </div>
               <br><br>
-              <input class="decrypt-button" type="button" value="Decrypt">
-            </section>
-            <br>
-            <br>
-          </section>
-        </section>
-        <section id="download">
-          <div id="model" style="width: 500px; height: 500px"> </div>
-        </section>
-        <section>
-            {{! <a id="download_btn">Download your HoloNFT!</a> }}
-        </section>
-      </section>
-    </main>
+              <input class="decrypt-button btn-primary" type="button" value="Decrypt">
+            </div>
+          </div>
+          <div class="HoloNFT col-lg-6">
+            <div id="download">
+              <div id="model" style="width: 500px; height: 500px"> </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+      </div>
+      </div>
   </body>
+  <script language="javascript" src="javascripts/custom-particle.js"></script>
   <script src="javascripts/crypt.js"></script>
   <script src="javascripts/stl_render.js"></script>
 </html>

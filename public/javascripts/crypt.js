@@ -55,9 +55,12 @@
                 oReq2.setRequestHeader('Content-Type', 'application/octet-stream');
                 oReq2.onreadystatechange = function() {
                     if (oReq2.readyState == XMLHttpRequest.DONE) {
-                        var link = document.getElementById('nft_download_btn');
+                        let link = document.getElementById('nft_download_btn');
                         link.href = window.URL.createObjectURL(new Blob([oReq2.response]));
                         link.download = fileName;
+
+                        let download_div = document.getElementById("downloads");
+                        download_div.style = "visibility: visible;"
                     }
                 }
                 oReq2.responseType = "arraybuffer";
@@ -68,12 +71,12 @@
     }
 
     async function decrypt(key, data_bs) {
-        console.log(key);
         // unpack encrypted data from PNG
         const PACK_SEPARATOR = "ENCRYPTED_PAYLOAD"; // FIXME: Access consts?
         var t_dec = new TextDecoder("ascii");
         let data_cs = t_dec.decode(data_bs);
         let offset = data_cs.indexOf(PACK_SEPARATOR);
+        console.log(offset);
         if (offset < 0){
             alert("Uploaded data is not a HoloNFT!");
             return;
@@ -108,15 +111,16 @@
     }
 
     async function ReadFile(key, enc) {
-        var stl_input = document.getElementById("STL-upload");
-
-        data = await new Response(stl_input.files[0]).arrayBuffer();
-        var data_bs = new Uint8Array(data);
         if (enc == true) {
+            var stl_input = document.getElementById("STL-upload");
+            data = await new Response(stl_input.files[0]).arrayBuffer();
+            var data_bs = new Uint8Array(data);
             encrypt(key, data_bs);
         } else {
+            var nft_input = document.getElementById("upload-nft");
+            data = await new Response(nft_input.files[0]).arrayBuffer();
+            var data_bs = new Uint8Array(data);
             var key_input = document.getElementById("upload-key");
-
             if (key_input.files.length === 0) {
                 window.setTimeout(ReadFile, 1000);
                 return;
