@@ -7,6 +7,7 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var carrierUploadRouter = require('./routes/upload_carrier');
 var uploadRouter = require('./routes/upload');
+var contractRouter = require('./routes/get_contract');
 var usersRouter = require('./routes/users');
 var octet_parser = require('./utils/octet-parser')
 
@@ -30,6 +31,7 @@ app.use(express.static(__dirname + '/node_modules/bootstrap/dist'));
 app.use('/', indexRouter);
 app.use('/upload_carrier', carrierUploadRouter);
 app.use('/upload', uploadRouter);
+app.use('/get_contract', contractRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler

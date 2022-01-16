@@ -1,4 +1,4 @@
-(() => {
+(async () => {
     /*
       Store the calculated ciphertext and IV here, so we can decrypt the message later.
     */
@@ -7,8 +7,29 @@
     let iv;
 
     let domain = window.location.protocol+"//" +window.location.host;
-    let upload_url = domain + "/upload"
-    let carrier_upload_url = domain + "/upload_carrier"
+    let upload_url = domain + "/upload";
+    let contract_url = domain + "/get_contract";
+    let carrier_upload_url = domain + "/upload_carrier";
+
+    const contractAddress = "0x1221F89B11e36d28595485372269d6F1fd576FBa";
+    let abi;
+    let get_contract = new XMLHttpRequest();
+    get_contract.open("get", contract_url, true);
+    get_contract.onreadystatechange = function() {
+        if (get_contract.readyState == XMLHttpRequest.DONE) {
+            let contract = JSON.parse(get_contract.response);
+            console.log(contract);
+
+            if (contract["abi"] === undefined)
+                alert("HoloNFT contract invalid!");
+            abi = contract["abi"];
+        }
+    }
+    get_contract.send();
+
+    await new Promise(r => setTimeout(r, 100));
+
+    console.log(abi);
 
     async function encrypt(key, data_bs) {
         var carrier_input = document.getElementById("carrier-upload");
@@ -17,6 +38,9 @@
         }
         let carrier_buf = await new Response(carrier_input.files[0]).arrayBuffer();
         iv = window.crypto.getRandomValues(new Uint8Array(16));
+
+        let account = await connectWalletHandler();
+        console.log("account address: ", account);
 
         const result = crypto.subtle.exportKey('raw', key);
         result.then((key_data) => {
@@ -55,12 +79,9 @@
                 oReq2.setRequestHeader('Content-Type', 'application/octet-stream');
                 oReq2.onreadystatechange = function() {
                     if (oReq2.readyState == XMLHttpRequest.DONE) {
-                        let link = document.getElementById('nft_download_btn');
-                        link.href = window.URL.createObjectURL(new Blob([oReq2.response]));
-                        link.download = fileName;
+                        console.log(oReq2.getResponseHeader("metadataurl"));
 
-                        let download_div = document.getElementById("downloads");
-                        download_div.style = "visibility: visible;"
+                        mintNFTHandler(oReq2.getResponseHeader("metadataurl"), oReq2.response)
                     }
                 }
                 oReq2.responseType = "arraybuffer";
@@ -135,6 +156,55 @@
                 ["encrypt", "decrypt"]
             );
             imported_key_promise.then((imported_key) => decrypt(imported_key, data_bs));
+        }
+    }
+
+    const connectWalletHandler = async () => {
+        const { ethereum } = window;
+        if(!ethereum) {
+            alert("Please install Metamask!");
+        }
+        let accounts;
+        try {
+            accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            console.log(accounts);
+        } catch (err) {
+            console.log(err);
+        }
+
+        if (accounts === undefined)
+            alert("Metamask account link failed!");
+
+        return accounts[0];
+    }
+
+    const mintNFTHandler = async (metadataUrl, holoNFTBytes) => {
+        try {
+            const { ethereum } = window;
+            if (ethereum) {
+                console.log(ethers.providers);
+                const providers = new ethers.providers.Web3Provider(ethereum);
+                const signer = providers.getSigner();
+                const nftContract = new ethers.Contract(contractAddress, abi, signer);
+
+                console.log("initialize payment");
+
+                let tx = await nftContract.mintNFT(metadataUrl, { value: ethers.utils.parseEther("0.01") });
+                console.log("Mining...");
+                await tx.wait();
+
+                console.log(`Mined, hash: https://rinkeby.etherscan.io/tx/${tx.hash}`);
+                let link = document.getElementById('nft_download_btn');
+                link.href = window.URL.createObjectURL(new Blob([holoNFTBytes]));
+                link.download = "HoloNFT.png";
+
+                let download_div = document.getElementById("downloads");
+                download_div.style = "visibility: visible;"
+            } else {
+                alert("Ethereum object not found (check metamask)");
+            }
+        } catch(err) {
+            alert(err);
         }
     }
 

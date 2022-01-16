@@ -96,44 +96,53 @@ router.post('/', function(req, res, next) {
                      })
                          .then(async function (response) {
                              let json_cid = response.data.IpfsHash;
-
-                             const nftContract = new web3.eth.Contract(contract.abi, contractAddress)
-
-                             const nonce = await web3.eth.getTransactionCount(my_address, 'latest'); //get latest nonce
-
-                             //the transaction
-                             const tx = {
-                                 'from': my_address,
-                                 'to': contractAddress,
-                                 'nonce': nonce,
-                                 'gas': 500000,
-                                 'data': nftContract.methods.mintNFT("https://gateway.pinata.cloud/ipfs/" + json_cid).encodeABI()
+                             var options = {
+                                 headers: {
+                                     'x-timestamp': Date.now(),
+                                     'x-sent': true,
+                                     'name': packed_file,
+                                     'metadataUrl': "https://gateway.pinata.cloud/ipfs/" + json_cid
+                                 }
                              };
+                             // send it back as a download in res
+                             res.sendFile(pack_file_path, options);
 
-                             const signPromise = web3.eth.accounts.signTransaction(tx, process.env.PRIVATE_KEY)
-                             signPromise
-                                 .then((signedTx) => {
-                                     web3.eth.sendSignedTransaction(
-                                         signedTx.rawTransaction,
-                                         function (err, hash) {
-                                             if (!err) {
-                                                 console.log(
-                                                     "The hash of your transaction is: ",
-                                                     hash,
-                                                     "\nCheck Alchemy's Mempool to view the status of your transaction!"
-                                                 );
-                                             } else {
-                                                 console.log(
-                                                     "Something went wrong when submitting your transaction:",
-                                                     err
-                                                 );
-                                             }
-                                         }
-                                     )
-                                 })
-                                 .catch((err) => {
-                                     console.log(" Promise failed:", err);
-                                 });
+                             // const nftContract = new web3.eth.Contract(contract.abi, contractAddress)
+                             // const nonce = await web3.eth.getTransactionCount(my_address, 'latest'); //get latest nonce
+
+                             // //the transaction
+                             // const tx = {
+                             //     'from': my_address,
+                             //     'to': contractAddress,
+                             //     'nonce': nonce,
+                             //     'gas': 500000,
+                             //     'data': nftContract.methods.mintNFT("https://gateway.pinata.cloud/ipfs/" + json_cid).encodeABI()
+                             // };
+
+                             // const signPromise = web3.eth.accounts.signTransaction(tx, process.env.PRIVATE_KEY)
+                             // signPromise
+                             //     .then((signedTx) => {
+                             //         web3.eth.sendSignedTransaction(
+                             //             signedTx.rawTransaction,
+                             //             function (err, hash) {
+                             //                 if (!err) {
+                             //                     console.log(
+                             //                         "The hash of your transaction is: ",
+                             //                         hash,
+                             //                         "\nCheck Alchemy's Mempool to view the status of your transaction!"
+                             //                     );
+                             //                 } else {
+                             //                     console.log(
+                             //                         "Something went wrong when submitting your transaction:",
+                             //                         err
+                             //                     );
+                             //                 }
+                             //             }
+                             //         )
+                             //     })
+                             //     .catch((err) => {
+                             //         console.log(" Promise failed:", err);
+                             //     });
                          })
                          .catch(function (error) {
                              //handle error here
@@ -146,25 +155,23 @@ router.post('/', function(req, res, next) {
                      console.log(error);
                  })
                  .finally(() => {
-                     // send it back as a download in res
-                     res.sendFile(pack_file_path, packed_file);
 
                      // clean up
-                     exec("rm " + enc_file_path + " " + pack_file_path + " "
-                          + container_file_path,
-                          (error, stdout, stderr) => {
-                              if (error) {
-                                  console.error(`error: ${error.message}`);
-                                  return;
-                              }
+                     // exec("rm " + enc_file_path + " " + pack_file_path + " "
+                     //      + container_file_path,
+                     //      (error, stdout, stderr) => {
+                     //          if (error) {
+                     //              console.error(`error: ${error.message}`);
+                     //              return;
+                     //          }
 
-                              if (stderr) {
-                                  console.error(`stderr: ${stderr}`);
-                                  return;
-                              }
+                     //          if (stderr) {
+                     //              console.error(`stderr: ${stderr}`);
+                     //              return;
+                     //          }
 
-                              console.log("Cleanup successful");
-                          });
+                     //          console.log("Cleanup successful");
+                     //      });
                  });
          });
 });
