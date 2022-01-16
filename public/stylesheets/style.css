@@ -177,6 +177,8 @@ body {
 body {
     content: "";
     background: url("/images/background.jpg");
+    background-size: contain;
+    background-repeat: no-repeat;
     /* opacity: 0.4; */
     top: 0;
     left: 0;
