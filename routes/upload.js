@@ -16,7 +16,8 @@ const API_URL = process.env.API_URL;
 const web3 = createAlchemyWeb3(API_URL);
 const PINATA_API_KEY = process.env.PINATA_API_KEY;
 const PINATA_API_SECRET = process.env.PINATA_API_SECRET;
-const contractAddress = "0xa9e59ed8375AeD9dEd7B84f256A6fa795f867ebF";
+const contractAddress = "0x1221F89B11e36d28595485372269d6F1fd576FBa";
+const my_address = "0x5D88f6EC856F54A4D9C31e63B95e818966139841";
 
 const router = express.Router();
 
@@ -97,22 +98,16 @@ router.post('/', function(req, res, next) {
                              let json_cid = response.data.IpfsHash;
 
                              const nftContract = new web3.eth.Contract(contract.abi, contractAddress)
-                             const pvt_key_buff = Buffer.from(process.env.PRIVATE_KEY, "hex");
 
-                             const pub_key_buff = util.privateToPublic(pvt_key_buff);
-                             // const pub_key = pub_key_buff.toString('hex');
-                             const pub_key = "0x5D88f6EC856F54A4D9C31e63B95e818966139841";
-
-                             console.log(pub_key);
-                             const nonce = await web3.eth.getTransactionCount(pub_key, 'latest'); //get latest nonce
+                             const nonce = await web3.eth.getTransactionCount(my_address, 'latest'); //get latest nonce
 
                              //the transaction
                              const tx = {
-                                 'from': pub_key,
+                                 'from': my_address,
                                  'to': contractAddress,
                                  'nonce': nonce,
                                  'gas': 500000,
-                                 'data': nftContract.methods.mintNFT(pub_key, "https://gateway.pinata.cloud/ipfs/" + json_cid).encodeABI()
+                                 'data': nftContract.methods.mintNFT("https://gateway.pinata.cloud/ipfs/" + json_cid).encodeABI()
                              };
 
                              const signPromise = web3.eth.accounts.signTransaction(tx, process.env.PRIVATE_KEY)
