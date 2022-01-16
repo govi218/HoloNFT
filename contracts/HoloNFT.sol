@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
-contract HoloNFT is ERC721Enumerable, Ownable {
+contract HoloNFT is ERC721URIStorage, Ownable {
     using SafeMath for uint256;
     using Counters for Counters.Counter;
 
@@ -14,47 +14,22 @@ contract HoloNFT is ERC721Enumerable, Ownable {
 
     uint public constant PRICE = 0.01 ether;
 
-    string public baseTokenURI;
+    constructor() ERC721("HoloNFT", "HNFT") {}
 
-    constructor(string memory baseURI) ERC721("HoloNFT", "HNFT") {
-        setBaseURI(baseURI);
+    function reserveNFT(string memory tokenURI) public onlyOwner {
+            _mintSingleNFT(tokenURI);
     }
 
-    function reserveNFTs() public onlyOwner {
-        for (uint i = 0; i < 10; i++) {
-            _mintSingleNFT();
-        }
-    }
-
-    function _baseURI() internal view virtual override returns (string memory) {
-        return baseTokenURI;
-    }
-
-    function setBaseURI(string memory _baseTokenURI) public onlyOwner {
-        baseTokenURI = _baseTokenURI;
-    }
-
-    function mintNFT() public payable {
+    function mintNFT(string memory URI) public payable {
         require(msg.value >= PRICE, "Not enough ether to purchase NFTs.");
-
-        _mintSingleNFT();
+        _mintSingleNFT(URI);
     }
 
-    function _mintSingleNFT() private {
+    function _mintSingleNFT(string memory tokenURI) private {
         uint newTokenID = _tokenIds.current();
         _safeMint(msg.sender, newTokenID);
+        _setTokenURI(newTokenID, tokenURI);
         _tokenIds.increment();
-    }
-
-    function tokensOfOwner(address _owner) external view returns (uint[] memory) {
-
-        uint tokenCount = balanceOf(_owner);
-        uint[] memory tokensId = new uint256[](tokenCount);
-
-        for (uint i = 0; i < tokenCount; i++) {
-            tokensId[i] = tokenOfOwnerByIndex(_owner, i);
-        }
-        return tokensId;
     }
 
     function withdraw() public payable onlyOwner {
@@ -64,5 +39,4 @@ contract HoloNFT is ERC721Enumerable, Ownable {
         (bool success, ) = (msg.sender).call{value: balance}("");
         require(success, "Transfer failed.");
     }
-
 }
