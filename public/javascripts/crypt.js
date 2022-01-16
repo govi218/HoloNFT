@@ -6,13 +6,13 @@
     let ciph_buffer;
     let iv;
 
-    let domain = window.location.protocol+"//" +window.location.host;
+    let domain = window.location.protocol + "//" + window.location.host;
     let upload_url = domain + "/upload"
     let carrier_upload_url = domain + "/upload_carrier"
 
     async function encrypt(key, data_bs) {
         var carrier_input = document.getElementById("carrier-upload");
-        if(carrier_input.files.length === 0) {
+        if (carrier_input.files.length === 0) {
             return;
         }
         let carrier_buf = await new Response(carrier_input.files[0]).arrayBuffer();
@@ -26,8 +26,7 @@
             link.download = fileName;
         }).catch((err) => console.log(err));
 
-        ciphertext = await window.crypto.subtle.encrypt(
-            {
+        ciphertext = await window.crypto.subtle.encrypt({
                 name: "AES-CBC",
                 iv
             },
@@ -77,7 +76,7 @@
         let data_cs = t_dec.decode(data_bs);
         let offset = data_cs.indexOf(PACK_SEPARATOR);
         console.log(offset);
-        if (offset < 0){
+        if (offset < 0) {
             alert("Uploaded data is not a HoloNFT!");
             return;
         }
@@ -90,8 +89,7 @@
         encoded_data = encoded_data.slice(0, encoded_data.length - 16);
 
         // then decrypt data
-        let decrypted = window.crypto.subtle.decrypt(
-            {
+        let decrypted = window.crypto.subtle.decrypt({
                 name: "AES-CBC",
                 iv
             },
@@ -131,8 +129,7 @@
                 "raw",
                 key_data,
                 "AES-CBC",
-                true,
-                ["encrypt", "decrypt"]
+                true, ["encrypt", "decrypt"]
             );
             imported_key_promise.then((imported_key) => decrypt(imported_key, data_bs));
         }
@@ -142,13 +139,11 @@
       Generate an encryption key, then set up event listeners
       on the "Encrypt" and "Decrypt" buttons.
     */
-    window.crypto.subtle.generateKey(
-        {
+    window.crypto.subtle.generateKey({
             name: "AES-CBC",
             length: 256
         },
-        true,
-        ["encrypt", "decrypt"]
+        true, ["encrypt", "decrypt"]
     ).then((key) => {
         const encryptButton = document.querySelector(".encrypt-button");
         encryptButton.addEventListener("click", () => {
