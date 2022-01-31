@@ -408,3 +408,12 @@ h1 {
         opacity: 1;
     }
 }
+
+.description {
+    text-align:center;
+}
+
+#start-tour {
+    margin: auto;
+    width: 7em;
+}

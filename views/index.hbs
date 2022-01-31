@@ -3,12 +3,12 @@
 
 <head>
   <meta charset="utf-8">
-  <title>TRUNK</title>
-  {{!
-  <script language="javascript" src="javascripts/particle.min.js"></script> }}
-  <script language="javascript" src="js/bootstrap.min.js"></script>
+  <title>HoloNFT</title>
   <link rel="stylesheet" href="css/bootstrap.min.css" />
   <link rel="stylesheet" href="stylesheets/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.11.0/css/bootstrap-tour-standalone.css" />
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.11.0/js/bootstrap-tour-standalone.js"></script>
   <script src="javascripts/three-combined-v1.2.js"></script>
   <script src="javascripts/stl_loader.js"></script>
   <script src="javascripts/orbit-controls.js"></script>
@@ -26,8 +26,9 @@
 <body>
   <div id="particles-js"></div>
   {{! <div id="img-container"></div> }}
-  <h1>TRUNK</h1>
+  <h1>HoloNFT</h1>
   <div class="description">
+        <input id="start-tour" type="button" class="btn btn-lg btn-primary" onclick="startTour()" value="Start Tour" />
   </div>
   <br>
   <br>
@@ -35,7 +36,7 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-6">
-        <div class="encryption container-md op p-3 my-3 bg-primary text-white">
+        <div class="encryption container-md op p-3 my-3 bg-primary text-white" id="minting">
           <div class="encryption-uploads">
             <label for="carrier-upload">Upload a PNG image to store your hologram</label>
             <input type="file" class="form-control" id="carrier-upload" name="message" size="25">
@@ -60,13 +61,14 @@
           <input class="encrypt-button btn-primary" type="button" value="Encrypt">
         </div>
         <br><br><br><br>
-        <div class="decryption container-md op p-3 my-3 bg-primary text-white">
+        <div class="decryption container-md op p-3 my-3 bg-primary text-white" id="viewing">
           <div class="decryption-uploads">
             <label for="upload-nft">Upload a HoloNFT</label>
             <input type="file" class="form-control" id="upload-nft" name="message" size="25">
           </div>
           <br><br>
           <input onclick="on()" type="button" value="Build 3D">
+          {{! <input onclick="openDoor()" type="button" value="View Sample"> }}
         </div>
       </div>
       <div class="HoloNFT col-lg-6">
