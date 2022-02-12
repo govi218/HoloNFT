@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
+var viewerRouter = require('./routes/viewer');
 var carrierUploadRouter = require('./routes/upload_carrier');
 var uploadRouter = require('./routes/upload');
 var contractRouter = require('./routes/get_contract');
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/node_modules/bootstrap/dist'));
 
 app.use('/', indexRouter);
+app.use('/viewer', viewerRouter);
 app.use('/upload_carrier', carrierUploadRouter);
 app.use('/upload', uploadRouter);
 app.use('/get_contract', contractRouter);
