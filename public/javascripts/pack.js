@@ -4,6 +4,33 @@ const utf8 = require('utf8');
 // FIXME: Replace with actual PNG magic
 const PNG_MAGIC = "PNG";
 
+// buffer cursor
+let curr_idx = 0;
+
+let read_bytes_as_int = (curr_idx, carrier_img, len) => {
+    let bytes = carrier_img.slice(curr_idx, curr_idx + len);
+    let buf = Buffer.from(bytes);
+    return buf.readUInt32BE(0);
+};
+
+let read_chunk = (carrier_img) => {
+    let chunk_len = read_bytes_as_int(curr_idx, carrier_img, 4);
+    curr_idx += 4;
+    let chunk_type = carrier_img.slice(curr_idx, curr_idx + 4);
+    curr_idx += 4;
+    let chunk_body = carrier_img.slice(curr_idx, curr_idx + chunk_len);
+    curr_idx += chunk_len;
+    let chunk_csum = read_bytes_as_int(curr_idx, carrier_img, 4);
+    curr_idx += 4;
+
+    return {
+        "c_len": chunk_len,
+        "c_type": chunk_type,
+        "c_body": chunk_body,
+        "c_csum": chunk_csum
+    };
+};
+
 const bytes_check = (data) => {
     return (data instanceof Uint8Array);
 };
@@ -58,11 +85,31 @@ function createHoloNFT(carrier_img, hidden_asset) {
     let png_magic_utf8 = utf8.encode(PNG_MAGIC);
     let png_bytes = carrier_img.slice(1, png_magic_utf8.length + 1);
 
+    // FIXME: get actual PNG header length
+    curr_idx += 8;
+
     var t_dec = new TextDecoder("utf-8");
     let data_cs = t_dec.decode(png_bytes);
 
     if (data_cs !== png_magic_utf8)
         throw "Carrier file needs to be a PNG!";
+
+    // iterate through chunks of PNG file
+    while (true) {
+        let chunk = read_chunk(carrier_img);
+        if (chunk["c_type"].toString() !== "IHDR" &&
+            chunk["c_type"].toString() !== "PLTE" &&
+            chunk["c_type"].toString() !== "IDAT" &&
+            chunk["c_type"].toString() !== "IEND") {
+            console.log("Warning: dropping non-essential or unknown chunk: " + chunk["c_type"].toString());
+            continue;
+        }
+
+
+    }
+
+    console.log(read_chunk(carrier_img));
+
 }
 
 // testing

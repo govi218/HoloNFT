@@ -20,7 +20,8 @@
     "fs": "^0.0.1-security",
     "hbs": "^4.2.0",
     "http-errors": "~1.6.3",
-    "morgan": "~1.9.1"
+    "morgan": "~1.9.1",
+    "utf8": "^3.0.0"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.3",
