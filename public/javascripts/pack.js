@@ -146,6 +146,116 @@ function createHoloNFT(carrier_img, hidden_asset) {
     console.log("Done!");
 }
 
+
+/**
+ * Publishes an NFT to Ethereum using the Alchemy API.
+ * First, the NFT is an ArrayBuffer that is stored in
+ * Pinata (IPFS). Then, the metadata (JSON) is stored
+ * on Pinata as well. If these operations are
+ * succesful, the NFT is minted using the HoloNFT
+ * smart contract. This requires the end user having
+ * MetaMask or some browser Web3 provider to pay the
+ * minting fee.
+ *
+ * @param metadata JSON object containing NFT
+ * metadata
+ * @param NFT Uint8Array with the NFT
+ * @return JSON object containing the transaction
+ * hash and the minted NFT's address. It looks like
+ * this:
+ * {"tx_hash": <string>, "NFT_address": <string>}
+ */
+function mintNFT(metadata, NFT) {
+    // upload to Pinata
+    const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
+
+    let data = new FormData();
+    data.append('file', new Blob(NFT));
+
+    axios
+        .post(url, data, {
+            maxBodyLength: 'Infinity', //this is needed to prevent axios from erroring out with large files
+            headers: {
+                'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+                pinata_api_key: PINATA_API_KEY,
+                pinata_secret_api_key: PINATA_API_SECRET
+            }
+        })
+        .then(function (response) {
+            let ipfs_hash = response.data.IpfsHash;
+            // now create NFT
+            let nft_metadata = metadata;
+            nft_metadata["image"] = "https://gateway.pinata.cloud/ipfs/" + ipfs_hash,
+
+            const json_url = `https://api.pinata.cloud/pinning/pinJSONToIPFS`;
+            axios.post(json_url, nft_metadata, {
+                headers: {
+                    pinata_api_key: PINATA_API_KEY,
+                    pinata_secret_api_key: PINATA_API_SECRET
+                }
+            })
+                .then(async function (response) {
+                    let json_cid = response.data.IpfsHash;
+                    var options = {
+                        headers: {
+                            'x-timestamp': Date.now(),
+                            'x-sent': true,
+                            'name': packed_file,
+                            'metadataUrl': "https://gateway.pinata.cloud/ipfs/" + json_cid
+                        }
+                    };
+                    // send it back as a download in res
+                    res.sendFile(pack_file_path, options);
+
+                    // const nftContract = new web3.eth.Contract(contract.abi, contractAddress)
+                    const nonce = await web3.eth.getTransactionCount(my_address, 'latest'); //get latest nonce
+
+                    //the transaction
+                    const tx = {
+                        'from': my_address,
+                        'to': contractAddress,
+                        'nonce': nonce,
+                        'gas': 500000,
+                        'data': nftContract.methods.mintNFT("https://gateway.pinata.cloud/ipfs/" + json_cid).encodeABI()
+                    };
+
+                    const signPromise = web3.eth.accounts.signTransaction(tx, process.env.PRIVATE_KEY)
+                    signPromise
+                        .then((signedTx) => {
+                            web3.eth.sendSignedTransaction(
+                                signedTx.rawTransaction,
+                                function (err, hash) {
+                                    if (!err) {
+                                        console.log(
+                                            "The hash of your transaction is: ",
+                                            hash,
+                                            "\nCheck Alchemy's Mempool to view the status of your transaction!"
+                                        );
+                                    } else {
+                                        console.log(
+                                            "Something went wrong when submitting your transaction:",
+                                            err
+                                        );
+                                    }
+                                }
+                            )
+                        })
+                        .catch((err) => {
+                            console.log(" Promise failed:", err);
+                        });
+                })
+                .catch(function (error) {
+                    //handle error here
+                    console.log(error);
+                });
+
+        })
+        .catch(function (error) {
+            //handle error here
+            console.log(error);
+        });
+}
+
 // testing
 fs.readFile('../images/locked.png', (err, data) => {
     if (err)
