@@ -1,8 +1,10 @@
 const fs = require('fs');
 const utf8 = require('utf8');
+const crc32 = require('buffer-crc32');
 
 // FIXME: Replace with actual PNG magic
 const PNG_MAGIC = "PNG";
+const CUSTOM_OFFSET_STR = "ENCRYPTED_PAYLOAD";
 
 // buffer cursor
 let curr_idx = 0;
@@ -12,6 +14,13 @@ let read_bytes_as_int = (curr_idx, carrier_img, len) => {
     let buf = Buffer.from(bytes);
     return buf.readUInt32BE(0);
 };
+
+let concat_uint8_arrs = (arr1, arr2) => {
+    var mergedArray = new Uint8Array(arr1.length + arr2.length);
+    mergedArray.set(arr1);
+    mergedArray.set(arr2, arr1.length);
+    return mergedArray;
+}
 
 let read_chunk = (carrier_img) => {
     let chunk_len = read_bytes_as_int(curr_idx, carrier_img, 4);
@@ -43,7 +52,7 @@ const bytes_check = (data) => {
  * @return a JSON object that has the Uint8Array of encrypted data as well as the
  * initialization vector required to decrypt
  */
-function get_encrypted_payload(HoloNFT, custom_offset_str = "ENCRYPTED_PAYLOAD") {
+function get_encrypted_payload(HoloNFT, custom_offset_str = CUSTOM_OFFSET_STR) {
     if (!bytes_check(HoloNFT))
         throw "HoloNFT needs to be a Uint8Array";
     var t_dec = new TextDecoder("ascii");
@@ -90,6 +99,7 @@ function createHoloNFT(carrier_img, hidden_asset) {
 
     var t_dec = new TextDecoder("utf-8");
     let data_cs = t_dec.decode(png_bytes);
+    let idat_body = new Uint8Array();
 
     if (data_cs !== png_magic_utf8)
         throw "Carrier file needs to be a PNG!";
@@ -97,19 +107,43 @@ function createHoloNFT(carrier_img, hidden_asset) {
     // iterate through chunks of PNG file
     while (true) {
         let chunk = read_chunk(carrier_img);
-        if (chunk["c_type"].toString() !== "IHDR" &&
-            chunk["c_type"].toString() !== "PLTE" &&
-            chunk["c_type"].toString() !== "IDAT" &&
-            chunk["c_type"].toString() !== "IEND") {
-            console.log("Warning: dropping non-essential or unknown chunk: " + chunk["c_type"].toString());
+        let c_type = chunk["c_type"].toString();
+        if (c_type !== "IHDR" && c_type !== "PLTE" &&
+            c_type !== "IDAT" && c_type !== "IEND") {
+            console.log("Warning: dropping non-essential or unknown chunk: " + c_type);
             continue;
         }
+        if (c_type === "IHDR") {
+            // TODO: get resolution
+        }
+        if (c_type === "IDAT") {
+            idat_body = concat_uint8_arrs(idat_body, chunk["c_body"]);
+            continue;
+        }
+        if (c_type === "IEND") {
+            // FIXME: the 33 comes from the header, yet Python uses `png_out.tell()`
+            // so this feels a bit suspect
+            let start_offset = 33 + 8 + idat_body.length;
+            console.log(png_bytes.length);
+            console.log("Embedded file starts at offset: " + start_offset.toString(16));
 
+            // add separator string
+            var enc = new TextEncoder(); // always utf-8
+            let sep_bytes = enc.encode(CUSTOM_OFFSET_STR);
+            idat_body = concat_uint8_arrs(idat_body, sep_bytes);
 
+            // add encoded bytes
+            console.log(idat_body.length);
+            idat_body = concat_uint8_arrs(idat_body, hidden_asset);
+            console.log(idat_body.length);
+
+        }
+
+        if (c_type === "IEND")
+            break;
     }
 
-    console.log(read_chunk(carrier_img));
-
+    console.log("Done!");
 }
 
 // testing

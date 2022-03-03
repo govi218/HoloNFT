@@ -12,6 +12,7 @@
     "@openzeppelin/contracts": "^4.4.1",
     "axios": "^0.24.0",
     "bootstrap": "^5.1.3",
+    "buffer-crc32": "^0.2.13",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^10.0.0",
